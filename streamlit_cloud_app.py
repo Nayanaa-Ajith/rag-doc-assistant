@@ -58,9 +58,10 @@ def setup_env():
     """Set environment variables from Streamlit secrets."""
     try:
         for key in ["GROQ_API_KEY", "TAVILY_API_KEY"]:
-            if key in st.secrets:
-                os.environ[key] = st.secrets[key]
-    except Exception:
+            if key in secrets:
+                os.environ[key] = str(secrets[key])
+    except Exception as e:
+        print(f"Secrets load error: {e}")
         pass  # secrets not available locally — use existing env vars
 
 
