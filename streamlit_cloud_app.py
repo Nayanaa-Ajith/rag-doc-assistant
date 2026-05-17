@@ -209,7 +209,8 @@ with tab_docs:
             docs = list_documents()
             col1, col2 = st.columns(2)
             col1.metric("Total Documents", len(docs))
-            col2.metric("Total Chunks", sum(int(d["chunks"]) if d["chunks"] else 0 for d in docs))            st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+            col2.metric("Total Chunks", sum(int(d["chunks"]) if d["chunks"] else 0 for d in docs))            
+            st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
             for doc in docs:
                 c1, c2 = st.columns([5, 2])
                 c1.markdown(f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;color:#2dd4bf;padding:10px 0;">{doc["name"]}</div>', unsafe_allow_html=True)
