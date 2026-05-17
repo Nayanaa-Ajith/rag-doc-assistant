@@ -12,18 +12,25 @@ from app.vectorstore import search
 
 load_dotenv()
 
-_llm = ChatGroq(
-    model="llama-3.1-8b-instant",
-    temperature=0,
-    api_key=os.getenv("GROQ_API_KEY", ""),
-)
+_llm = None
+
+def _get_llm():
+    global _llm
+    if _llm is None:
+        _llm = ChatGroq(
+            model="llama-3.1-8b-instant",
+            temperature=0,
+            api_key=os.getenv("GROQ_API_KEY", ""),
+        )
+    return _llm
+
 
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
 
 
 def _call_llm(prompt: str) -> str:
     try:
-        return _llm.invoke(prompt).content.strip()
+        return _get_llm().invoke(prompt).content.strip()
     except Exception as e:
         return f"ERROR: {e}"
 
