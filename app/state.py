@@ -1,9 +1,7 @@
-from typing import TypedDict, List, Any, Optional, Annotated
-import operator
+from typing import TypedDict, List, Any, Annotated
 
 
 def _replace(old, new):
-    """Reducer that just replaces the old value with the new one."""
     return new
 
 
