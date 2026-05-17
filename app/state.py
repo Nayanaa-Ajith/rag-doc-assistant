@@ -1,23 +1,24 @@
-"""
-GraphState — fixed for LangGraph 0.2.x compatibility.
-All fields use total=False to prevent LangGraph from trying len() on ints.
-"""
-
-from typing import TypedDict, List, Any, Optional
+from typing import TypedDict, List, Any, Optional, Annotated
+import operator
 
 
-class GraphState(TypedDict, total=False):
-    question: str
-    session_id: str
-    rewritten_question: str
-    query_type: str
-    documents: List[Any]
-    web_search_results: List[Any]
-    relevant_documents: List[Any]
-    retry_count: int
-    should_fallback: bool
-    used_web_search: bool
-    answer: str
-    sources: List[str]
-    hallucination_score: str
-    chat_history: List[Any]
+def _replace(old, new):
+    """Reducer that just replaces the old value with the new one."""
+    return new
+
+
+class GraphState(TypedDict):
+    question: Annotated[str, _replace]
+    session_id: Annotated[str, _replace]
+    rewritten_question: Annotated[str, _replace]
+    query_type: Annotated[str, _replace]
+    documents: Annotated[List[Any], _replace]
+    web_search_results: Annotated[List[Any], _replace]
+    relevant_documents: Annotated[List[Any], _replace]
+    retry_count: Annotated[int, _replace]
+    should_fallback: Annotated[bool, _replace]
+    used_web_search: Annotated[bool, _replace]
+    answer: Annotated[str, _replace]
+    sources: Annotated[List[str], _replace]
+    hallucination_score: Annotated[str, _replace]
+    chat_history: Annotated[List[Any], _replace]
