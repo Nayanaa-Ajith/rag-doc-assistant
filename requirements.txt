@@ -1,9 +1,10 @@
 fastapi==0.111.0
 uvicorn==0.30.1
-langgraph==0.1.19
-langchain==0.2.6
-langchain-community==0.2.6
-langchain-groq==0.1.6
+langgraph==1.0.1
+langchain==0.3.30
+langchain-community==0.3.27
+langchain-groq==0.3.8
+langchain-core==0.3.86
 chromadb==0.5.3
 sentence-transformers==3.0.1
 python-dotenv==1.0.1
@@ -11,6 +12,7 @@ python-multipart==0.0.9
 beautifulsoup4==4.12.3
 requests==2.32.3
 tavily-python==0.3.3
-streamlit>=1.40.0
+streamlit==1.56.0
 httpx==0.27.0
 aiofiles==23.2.1
+numpy==1.26.4
