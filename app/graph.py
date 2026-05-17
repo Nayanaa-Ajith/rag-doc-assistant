@@ -1,40 +1,43 @@
 """
-LangGraph StateGraph — updated for LangGraph 1.0+
+LangGraph StateGraph — fixed for Streamlit Cloud deployment.
+Graph is built lazily (on first query) so API keys are set before initialization.
 """
 
 import os
-from langgraph.graph import StateGraph, END
-from app.state import GraphState
-from app.nodes import (
-    query_analysis_node,
-    retrieval_node,
-    web_search_node,
-    grading_node,
-    generation_node,
-    hallucination_check_node,
-    fallback_node,
-)
 from dotenv import load_dotenv
 
 load_dotenv()
 
-MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
 TAVILY_KEY = os.getenv("TAVILY_API_KEY", "")
 WEB_SEARCH_ENABLED = bool(TAVILY_KEY and TAVILY_KEY != "your_tavily_api_key_here")
+MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
+
+_rag_graph = None
 
 
-def route_after_grading(state: GraphState) -> str:
-    if state.get("should_fallback"):
-        return "fallback"
-    if state.get("relevant_documents"):
-        return "generate"
-    retry = state.get("retry_count", 0)
-    if WEB_SEARCH_ENABLED and not state.get("used_web_search") and retry >= 1:
-        return "web_search"
-    return "rewrite"
+def _build_graph():
+    from langgraph.graph import StateGraph, END
+    from app.state import GraphState
+    from app.nodes import (
+        query_analysis_node,
+        retrieval_node,
+        web_search_node,
+        grading_node,
+        generation_node,
+        hallucination_check_node,
+        fallback_node,
+    )
 
+    def route_after_grading(state) -> str:
+        if state.get("should_fallback"):
+            return "fallback"
+        if state.get("relevant_documents"):
+            return "generate"
+        retry = state.get("retry_count", 0)
+        if WEB_SEARCH_ENABLED and not state.get("used_web_search") and retry >= 1:
+            return "web_search"
+        return "rewrite"
 
-def build_graph():
     g = StateGraph(GraphState)
 
     g.add_node("query_analysis", query_analysis_node)
@@ -68,15 +71,19 @@ def build_graph():
     return g.compile()
 
 
-rag_graph = build_graph()
+def _get_graph():
+    global _rag_graph
+    if _rag_graph is None:
+        _rag_graph = _build_graph()
+    return _rag_graph
 
 
 def run_query(
     question: str,
     session_id: str = "default",
-    chat_history: list | None = None,
+    chat_history: list = None,
 ) -> dict:
-    initial_state: GraphState = {
+    initial_state = {
         "question": question,
         "session_id": session_id,
         "rewritten_question": "",
@@ -92,4 +99,5 @@ def run_query(
         "hallucination_score": "unknown",
         "chat_history": chat_history or [],
     }
-    return rag_graph.invoke(initial_state)
+    result = _get_graph().invoke(initial_state)
+    return dict(result)
